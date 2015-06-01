@@ -1,0 +1,71 @@
+
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./stylesheets/all.css" />
+	<script type="text/javascript" src="./javascripts/all.js"></script>
+	<!-- To test using the original jQuery.autocomplete, uncomment the following -->
+	<!--
+	<script type='text/javascript' src='http://xoxco.com/x/tagsinput/jquery-autocomplete/jquery.autocomplete.min.js'></script>
+	<link rel="stylesheet" type="text/css" href="http://xoxco.com/x/tagsinput/jquery-autocomplete/jquery.autocomplete.css" />
+	-->
+	<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js'></script>
+	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/themes/start/jquery-ui.css" />
+
+
+	<script type="text/javascript">
+		var storage = []
+
+		$(function() {
+			$('#tags_3').tagsInput({
+				width: 'auto',
+				autocomplete_url:'flavors.json', //overwritten, but field needs to not be null!!!
+				autocomplete: {
+  					source: function (request, response) {
+  						$.getJSON("flavors.json?name=" + request.term, function (data) {
+  							for (var i=0; i<data.length; i++) {
+  								storage[data[i]["id"]] = data[i]["name"];
+  							}
+				            response($.map(data, function (value, key) {
+				                return {
+				                    label: value["name"],
+				                    value: value["id"]
+				                };
+				            }));
+				        });
+  					},
+  					focus: function( event, ui) {
+						var l = ui.item.label;
+  						$(this).val(l+"");
+  						return false;
+  					}
+  				},
+				onAddTag: function(tag) {
+					if ( storage[tag] == undefined ) {
+						$("#tags_3").removeTag(tag);
+					}
+				},
+				onChange: function(input, tag) {
+					if ( storage[tag] != undefined ) {
+						$(".tag span").text(function() {
+							return $(this).text().replace(tag, storage[tag]);
+						});
+						$('.tag').data('id',tag);
+					}
+
+					if (input != undefined) {
+						console.log($(input).val().split(','));
+					}
+				}
+			});
+
+// Uncomment this line to see the callback functions in action
+//			$('input.tags').tagsInput({onAddTag:onAddTag,onRemoveTag:onRemoveTag,onChange: onChangeTag});
+
+// Uncomment this line to see an input with no interface for adding new tags.
+//			$('input.tags').tagsInput({interactive:false});
+		});
+
+	</script>
+		<form>
+			<input id='tags_3' type='text' class='tags'></p>
+
+		</form>
